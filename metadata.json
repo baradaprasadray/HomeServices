@@ -1,0 +1,6 @@
+{
+  "name": "HS.com - Trusted Home Services & Local Pros",
+  "description": "Discover verified local professionals, explore home repair and maintenance services, and book verified experts in minutes on HS.com.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

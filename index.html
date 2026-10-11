@@ -1,0 +1,1968 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HS.com - Trusted Home Services & Local Pros</title>
+    <meta name="description" content="Discover verified local professionals, explore home repair and maintenance services, and book verified experts in minutes on HS.com." />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS (CDN so it works standalone when opened directly anywhere) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand-sky': '#8ECAE6',
+              'brand-teal': '#219EBC',
+              'brand-navy': '#023047',
+              'brand-amber': '#FFB703',
+              'brand-orange': '#FB8500',
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Lucide Icons (Standalone CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        color: #023047;
+        background-color: #F8FAFC;
+        overflow-x: hidden;
+      }
+      /* Custom responsive grid as requested: 4 in desktop, 2 in phone */
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      @media (min-width: 1024px) {
+        .services-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 1.5rem;
+        }
+      }
+      /* Hide scrollbar for category tabs */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="bg-[#F8FAFC] text-[#023047] antialiased selection:bg-[#8ECAE6]/40 selection:text-[#023047] min-h-screen flex flex-col">
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-20 right-4 z-50 bg-[#023047] text-white text-xs font-bold px-4 py-3 rounded-xl shadow-xl border border-slate-700 hidden transition-all">
+      <span id="toast-text">Notification</span>
+    </div>
+
+    <!-- Master Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between gap-8 h-18">
+          
+          <!-- Zone 1: Single element Brand Wordmark & City -->
+          <div class="flex items-center gap-4 shrink-0">
+            <button onclick="navigateTo('home')" class="group flex items-center gap-2.5 text-left focus:outline-none rounded-lg cursor-pointer">
+              <div class="w-10 h-10 rounded-xl bg-[#023047] flex items-center justify-center text-white shadow-sm group-hover:bg-[#219EBC] transition-colors">
+                <i data-lucide="wrench" class="w-5 h-5 text-[#FFB703]"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xl font-extrabold tracking-tight text-[#023047] group-hover:text-[#219EBC] transition-colors">
+                  HS<span class="text-[#FB8500]">.com</span>
+                </span>
+              </div>
+            </button>
+
+            <!-- City Selector -->
+            <div class="relative hidden sm:block">
+              <button onclick="toggleCityDropdown()" id="city-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#023047] bg-[#8ECAE6]/15 hover:bg-[#8ECAE6]/30 border border-[#8ECAE6]/40 rounded-lg transition-colors cursor-pointer">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#219EBC]"></i>
+                <span id="selected-city-text" class="truncate max-w-[110px]">Austin, TX</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-[#023047]/60"></i>
+              </button>
+              <div id="city-dropdown" class="absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-50 hidden">
+                <div class="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Select Your City</div>
+                <div id="city-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone 2: Navigation Links -->
+          <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-[#023047]/80">
+            <button onclick="navigateTo('home')" id="nav-home" class="hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer text-[#219EBC] font-bold">Home</button>
+            <button onclick="navigateTo('services')" id="nav-services" class="hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer">Services</button>
+            <button onclick="navigateTo('how-it-works')" id="nav-how-it-works" class="hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer">How It Works</button>
+            <button onclick="navigateTo('top-pros')" id="nav-top-pros" class="hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer">Verified Pros</button>
+            <button onclick="navigateTo('reviews')" id="nav-reviews" class="hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer">Reviews</button>
+            <button onclick="navigateTo('bookings')" id="nav-bookings" class="relative flex items-center gap-1.5 hover:text-[#219EBC] transition-colors whitespace-nowrap cursor-pointer">
+              <i data-lucide="calendar" class="w-4 h-4 text-[#219EBC]"></i>
+              <span>My Bookings</span>
+              <span id="nav-booking-badge" class="ml-0.5 px-1.5 py-0.2 text-[11px] font-bold bg-[#FB8500] text-white rounded-full hidden">0</span>
+            </button>
+          </nav>
+
+          <!-- Zone 3: Primary Action Buttons -->
+          <div class="flex items-center gap-3 shrink-0">
+            <button onclick="openEmergencyModal()" class="hidden lg:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#023047] hover:text-[#FB8500] border border-slate-200 hover:border-[#FB8500]/40 rounded-lg transition-colors whitespace-nowrap cursor-pointer">
+              <i data-lucide="phone-call" class="w-3.5 h-3.5 text-[#FB8500]"></i>
+              <span>Emergency 45-Min</span>
+            </button>
+            <button onclick="navigateTo('services')" class="px-4 py-2.5 text-xs font-bold text-white bg-[#023047] hover:bg-[#219EBC] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FFB703]"></i>
+              <span>Book a Service</span>
+            </button>
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="md:hidden py-4 border-t border-slate-100 space-y-2 hidden">
+          <div class="px-2 pb-2">
+            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Your Location</label>
+            <select id="mobile-city-select" onchange="changeCity(this.value)" class="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-[#023047]"></select>
+          </div>
+          <button onclick="navigateTo('home'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100 flex items-center gap-2">Home</button>
+          <button onclick="navigateTo('services'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100">All 12 Services</button>
+          <button onclick="navigateTo('how-it-works'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100">How It Works</button>
+          <button onclick="navigateTo('top-pros'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100">Verified Pros</button>
+          <button onclick="navigateTo('reviews'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100">Customer Reviews</button>
+          <button onclick="navigateTo('bookings'); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-semibold text-sm rounded-lg hover:bg-slate-100 flex items-center justify-between">
+            <span>My Bookings</span>
+            <span id="mobile-booking-badge" class="px-2 py-0.5 text-xs font-bold bg-[#FB8500] text-white rounded-full hidden">0</span>
+          </button>
+          <button onclick="openEmergencyModal(); toggleMobileMenu();" class="w-full text-left py-2 px-2.5 font-bold text-sm text-[#FB8500] flex items-center gap-2">
+            <i data-lucide="phone-call" class="w-4 h-4"></i>
+            <span>Emergency 45-Min Response</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container for All Dynamic Page Views -->
+    <main class="flex-1" id="main-content">
+      
+      <!-- HERO SECTION -->
+      <section id="hero-section" class="relative pt-6 pb-12 lg:pt-10 lg:pb-16 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            <div class="lg:col-span-7 space-y-6">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#8ECAE6]/20 border border-[#8ECAE6]/50 text-[#023047] text-xs font-bold tracking-wide">
+                <i data-lucide="shield-check" class="w-4 h-4 text-[#219EBC]"></i>
+                <span>Verified Home Pros Serving <span class="current-city-label">Austin, TX</span></span>
+              </div>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#023047] tracking-tight leading-[1.15]">
+                Quality home repairs & services, booked in minutes.
+              </h1>
+              <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
+                From leak repairs and circuit breaker fixes to full home deep cleaning and renovation. Upfront pricing, vetted local specialists, and a 30-day workmanship guarantee.
+              </p>
+
+              <!-- Interactive Search Box -->
+              <div class="p-2 sm:p-2.5 bg-white rounded-2xl shadow-lg shadow-slate-200/60 border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div class="relative flex-1 flex items-center px-3.5 py-2">
+                    <i data-lucide="search" class="w-5 h-5 text-[#219EBC] shrink-0 mr-3"></i>
+                    <input type="text" id="hero-search-input" onkeyup="handleHeroSearch(event)" placeholder="Search e.g. Plumbing, AC jet wash, Masonry, Carpenter..." class="w-full text-sm font-medium text-[#023047] placeholder:text-slate-400 bg-transparent focus:outline-none" />
+                  </div>
+                  <button onclick="submitHeroSearch()" class="px-6 py-3.5 bg-[#FB8500] hover:bg-[#e07700] text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer">
+                    <span>Explore Services</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <div class="pt-3 pb-1 px-3 border-t border-slate-100 flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs font-semibold text-slate-400 mr-1">Popular:</span>
+                  <button onclick="filterByTag('Plumbing')" class="px-2.5 py-1 text-xs font-medium text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/30 rounded-md transition-colors cursor-pointer">Plumbing</button>
+                  <button onclick="filterByTag('Electrician')" class="px-2.5 py-1 text-xs font-medium text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/30 rounded-md transition-colors cursor-pointer">Electrician</button>
+                  <button onclick="filterByTag('AC & Appliances')" class="px-2.5 py-1 text-xs font-medium text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/30 rounded-md transition-colors cursor-pointer">AC & Appliances</button>
+                  <button onclick="filterByTag('Cleaning')" class="px-2.5 py-1 text-xs font-medium text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/30 rounded-md transition-colors cursor-pointer">Deep Cleaning</button>
+                  <button onclick="filterByTag('Painting')" class="px-2.5 py-1 text-xs font-medium text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/30 rounded-md transition-colors cursor-pointer">Painting</button>
+                </div>
+              </div>
+
+              <!-- Feature Bullets -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs font-medium text-slate-600">
+                <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-[#219EBC]"></i><span>Transparent pricing</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-[#219EBC]"></i><span>Pay after satisfaction</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-[#219EBC]"></i><span>Instant confirmation</span></div>
+              </div>
+            </div>
+
+            <!-- Hero Image Box -->
+            <div class="lg:col-span-5 relative">
+              <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-900 group">
+                <img src="./src/assets/images/hero_home_repair_1791614439523.jpg" alt="Home Repair Pro" class="w-full h-[380px] sm:h-[440px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/90 via-[#023047]/20 to-transparent pointer-events-none"></div>
+                <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl shadow-lg border border-white flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-[#219EBC]/15 flex items-center justify-center text-[#219EBC]"><i data-lucide="award" class="w-4 h-4"></i></div>
+                  <div>
+                    <div class="text-xs font-extrabold text-[#023047]">100% Background-Checked</div>
+                    <div class="text-[11px] text-slate-500">Government ID & Police Verified</div>
+                  </div>
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-xl border border-white flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-1 text-[#FFB703]">
+                      <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                      <span class="text-xs font-black text-[#023047]">4.9 / 5.0</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500">Over 15,200 verified reviews</div>
+                  </div>
+                  <span class="text-[11px] font-bold text-[#219EBC] bg-[#8ECAE6]/20 px-2 py-1 rounded-md">Same-Day Slots Open</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 4-Column KPI Trust Strip -->
+          <div class="mt-12 pt-8 border-t border-slate-200/80 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-[#8ECAE6]/25 text-[#219EBC] flex items-center justify-center shrink-0"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+              <div><div class="text-lg font-extrabold text-[#023047]">15,000+</div><div class="text-xs text-slate-500 font-medium">Completed Home Jobs</div></div>
+            </div>
+            <div class="p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-[#FFB703]/20 text-[#FB8500] flex items-center justify-center shrink-0"><i data-lucide="star" class="w-5 h-5 fill-current"></i></div>
+              <div><div class="text-lg font-extrabold text-[#023047]">4.9 / 5.0</div><div class="text-xs text-slate-500 font-medium">Average Customer Rating</div></div>
+            </div>
+            <div class="p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-[#219EBC]/15 text-[#219EBC] flex items-center justify-center shrink-0"><i data-lucide="clock" class="w-5 h-5"></i></div>
+              <div><div class="text-lg font-extrabold text-[#023047]">45 Mins</div><div class="text-xs text-slate-500 font-medium">Average Arrival Time</div></div>
+            </div>
+            <div class="p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-[#023047]/10 text-[#023047] flex items-center justify-center shrink-0"><i data-lucide="award" class="w-5 h-5"></i></div>
+              <div><div class="text-lg font-extrabold text-[#023047]">30-Day</div><div class="text-xs text-slate-500 font-medium">Workmanship Warranty</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SERVICES DIRECTORY SECTION (Grid: 4 per row desktop, 2 per row phone) -->
+      <section id="services-section" class="py-12 sm:py-16 bg-slate-50/70 border-t border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#219EBC] tracking-wider uppercase mb-2">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FB8500]"></i>
+                <span>Full Service Directory</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-[#023047] tracking-tight">
+                Book a Certified Professional
+              </h2>
+              <p class="text-slate-500 text-sm mt-1 max-w-xl">
+                12 certified categories with fixed transparent pricing, background-checked pros, and same-day availability.
+              </p>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="flex items-center gap-2 self-start md:self-auto">
+              <span class="text-xs font-semibold text-slate-500 hidden sm:inline">Sort:</span>
+              <select id="sort-select" onchange="renderServices()" class="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-3 py-2 text-[#023047] focus:outline-none focus:ring-1 focus:ring-[#219EBC]">
+                <option value="recommended">Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Category filter buttons -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar" id="category-tabs">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Active Search Indicator -->
+          <div id="search-indicator" class="mb-6 p-3 bg-white border border-[#8ECAE6]/60 rounded-xl flex items-center justify-between hidden">
+            <div class="text-xs text-slate-600">Showing results for: <span id="search-query-text" class="font-bold text-[#023047]"></span> (<span id="search-count">0</span> found)</div>
+            <button onclick="clearSearch()" class="text-xs font-bold text-[#FB8500] hover:underline cursor-pointer">Reset filter</button>
+          </div>
+
+          <!-- SERVICES GRID: Exactly 2 in phone, 4 in desktop -->
+          <div id="services-grid-container" class="services-grid">
+            <!-- Dynamically populated with all 12 services by JS -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS SECTION (With Images for each step) -->
+      <section id="how-it-works-section" class="py-14 sm:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-2xl mx-auto mb-12">
+            <div class="text-xs font-bold text-[#219EBC] uppercase tracking-wider mb-2">Seamless & Transparent</div>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#023047] tracking-tight">How HS.com Works</h2>
+            <p class="mt-2 text-sm text-slate-500">Booking home repairs shouldn't feel like a gamble. Experience standard-setting dependability in 3 easy steps.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Step 1 -->
+            <div class="group rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-[#219EBC] transition-all overflow-hidden flex flex-col shadow-xs hover:shadow-xl">
+              <div class="relative aspect-[16/10] w-full bg-slate-900 overflow-hidden">
+                <img src="./src/assets/images/step_booking_1791616716359.jpg" alt="Step 1 Booking" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&auto=format&fit=crop&q=80'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/85 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute top-3 left-3 bg-[#023047]/90 text-white font-mono text-xs font-extrabold px-3 py-1 rounded-full">01</div>
+                <div class="absolute bottom-3 left-3 text-xs font-bold text-[#8ECAE6] flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-[#FFB703]"></i><span>Step 1: Simple Booking</span></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div>
+                  <h3 class="text-lg font-bold text-[#023047] mb-2">Choose Service & Slot</h3>
+                  <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">Browse 12 certified categories, select your package, and pick a guaranteed arrival slot that fits your schedule.</p>
+                </div>
+                <div class="pt-3 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-[#219EBC]">
+                  <i data-lucide="check-circle" class="w-4 h-4"></i><span>Transparent fixed rates</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="group rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-[#219EBC] transition-all overflow-hidden flex flex-col shadow-xs hover:shadow-xl">
+              <div class="relative aspect-[16/10] w-full bg-slate-900 overflow-hidden">
+                <img src="./src/assets/images/step_arrival_1791616727711.jpg" alt="Step 2 Arrival" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1541888946425-d0fbb18f156e?w=600&auto=format&fit=crop&q=80'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/85 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute top-3 left-3 bg-[#023047]/90 text-white font-mono text-xs font-extrabold px-3 py-1 rounded-full">02</div>
+                <div class="absolute bottom-3 left-3 text-xs font-bold text-[#8ECAE6] flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#FFB703]"></i><span>Step 2: On-Time Arrival</span></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div>
+                  <h3 class="text-lg font-bold text-[#023047] mb-2">Certified Pro Arrives</h3>
+                  <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">An insured, background-checked professional arrives equipped with specialized tools and authentic replacement components.</p>
+                </div>
+                <div class="pt-3 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-[#219EBC]">
+                  <i data-lucide="check-circle" class="w-4 h-4"></i><span>ID verified & insured</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="group rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-[#219EBC] transition-all overflow-hidden flex flex-col shadow-xs hover:shadow-xl">
+              <div class="relative aspect-[16/10] w-full bg-slate-900 overflow-hidden">
+                <img src="./src/assets/images/step_satisfaction_1791616740161.jpg" alt="Step 3 Satisfaction" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/85 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute top-3 left-3 bg-[#023047]/90 text-white font-mono text-xs font-extrabold px-3 py-1 rounded-full">03</div>
+                <div class="absolute bottom-3 left-3 text-xs font-bold text-[#8ECAE6] flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5 text-[#FFB703]"></i><span>Step 3: Quality Guaranteed</span></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div>
+                  <h3 class="text-lg font-bold text-[#023047] mb-2">Inspect & Pay Later</h3>
+                  <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">Inspect the completed work thoroughly. Pay securely only after 100% satisfaction, backed by our 30-day warranty.</p>
+                </div>
+                <div class="pt-3 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-[#219EBC]">
+                  <i data-lucide="check-circle" class="w-4 h-4"></i><span>30-Day workmanship cover</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMERGENCY RAPID RESPONSE SECTION (With Service Van Image) -->
+      <section id="emergency-section" class="py-12 sm:py-16 bg-[#023047] text-white overflow-hidden relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-6 relative order-2 lg:order-1">
+              <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+                <img src="./src/assets/images/emergency_response_team_1791616652460.jpg" alt="Emergency Van & Pro" class="w-full h-[320px] sm:h-[380px] object-cover group-hover:scale-103 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80'" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/80 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute top-4 left-4 bg-[#FB8500] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                  <span>On-Call Fleet Active</span>
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-xl text-[#023047] flex items-center justify-between shadow-lg">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-[#FB8500]"></i>
+                    <span class="text-xs font-extrabold">Average Dispatch ETA: 38 Minutes</span>
+                  </div>
+                  <span class="text-[10px] font-black uppercase bg-[#219EBC]/15 text-[#219EBC] px-2 py-0.5 rounded">24/7 Priority</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-6 space-y-6 order-1 lg:order-2">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FB8500]/20 border border-[#FB8500]/40 text-[#FFB703] text-xs font-bold uppercase tracking-wider">
+                <i data-lucide="phone-call" class="w-4 h-4"></i>
+                <span>Rapid Emergency Response</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                Burst pipe? Power sparks? We're at your door in 45 minutes.
+              </h2>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                When an urgent home crisis strikes, waiting days for an appointment isn't an option. Our dedicated rapid response fleet is equipped to isolate leaks, restore electrical circuits, and secure emergency locks immediately.
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-200">
+                <div class="flex items-center gap-2"><i data-lucide="droplets" class="w-4 h-4 text-[#8ECAE6]"></i><span>Water line burst & flooding</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-[#FFB703]"></i><span>MCB tripping & power outage</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="key" class="w-4 h-4 text-[#8ECAE6]"></i><span>Front door lock failure</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="snowflake" class="w-4 h-4 text-[#8ECAE6]"></i><span>AC compressor smoking / failure</span></div>
+              </div>
+              <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <button onclick="openEmergencyModal()" class="px-6 py-3.5 bg-[#FB8500] hover:bg-[#e07700] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <i data-lucide="phone-call" class="w-4 h-4"></i>
+                  <span>Request 45-Min Emergency Callout</span>
+                </button>
+                <div class="text-center sm:text-left text-xs text-slate-400">
+                  Toll-free: <span class="font-mono font-bold text-white">1-800-472-HOME</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP PROS SECTION (With Verified Portraits) -->
+      <section id="top-pros-section" class="py-14 sm:py-20 bg-slate-50/70 border-t border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-10">
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#219EBC] tracking-wider uppercase mb-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-[#219EBC]"></i>
+              <span>Vetted & Insured Network</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-[#023047] tracking-tight">Meet Our Top-Rated Local Pros</h2>
+            <p class="text-slate-500 text-sm mt-1 max-w-xl">Each professional on HS.com undergoes background verification, technical assessments, and maintains an average rating of 4.8+.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="pros-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- CUSTOMER REVIEWS SECTION (With Real Job Photos) -->
+      <section id="reviews-section" class="py-14 sm:py-20 bg-white border-t border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+              <div class="text-xs font-bold text-[#219EBC] uppercase tracking-wider mb-2">Verified Feedback</div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-[#023047] tracking-tight">Real Experiences from Real Homeowners</h2>
+              <p class="text-slate-500 text-sm mt-1 max-w-xl">Every review comes from a customer who booked and completed a service with our vetted technicians, with verified job photos.</p>
+            </div>
+            <button onclick="toggleReviewForm()" class="px-4 py-2.5 text-xs font-bold text-[#023047] bg-[#8ECAE6]/25 hover:bg-[#8ECAE6]/40 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer self-start md:self-auto">
+              <i data-lucide="message-square" class="w-3.5 h-3.5 text-[#219EBC]"></i>
+              <span id="review-form-btn-text">Write a Review</span>
+            </button>
+          </div>
+
+          <!-- Add Review Form -->
+          <div id="add-review-form-container" class="mb-8 p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 hidden">
+            <h4 class="text-sm font-extrabold text-[#023047]">Share Your Experience</h4>
+            <form onsubmit="submitReview(event)" class="space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="text-[11px] font-bold text-slate-500 block mb-1">Your Name</label>
+                  <input type="text" id="rev-author" required placeholder="e.g. Rachel Adams" class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none" />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-500 block mb-1">Service Used</label>
+                  <input type="text" id="rev-service" required placeholder="e.g. Plumbing / AC" class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none" />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-500 block mb-1">Rating</label>
+                  <select id="rev-rating" class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none">
+                    <option value="5">5 Stars - Excellent</option>
+                    <option value="4">4 Stars - Very Good</option>
+                    <option value="3">3 Stars - Average</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-500 block mb-1">Your Review</label>
+                <textarea id="rev-comment" required rows="3" placeholder="How was the technician's punctuality, craft, and cleanup?" class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none"></textarea>
+              </div>
+              <div class="flex justify-end gap-2">
+                <button type="button" onclick="toggleReviewForm()" class="px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-bold bg-[#023047] text-white rounded-lg hover:bg-[#219EBC] cursor-pointer">Submit Review</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Reviews Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5" id="reviews-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- DEDICATED BOOKINGS VIEW (When user clicks My Bookings) -->
+      <section id="bookings-view-section" class="py-12 bg-slate-50 min-h-[60vh] hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <button onclick="navigateTo('home')" class="text-xs font-bold text-[#219EBC] hover:underline flex items-center gap-1 mb-2 cursor-pointer">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to Home
+              </button>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-[#023047]">My Bookings & Service Orders</h2>
+              <p class="text-xs text-slate-500 mt-1">Manage scheduled visits, reschedule arrival slots, and view invoices.</p>
+            </div>
+            <button onclick="navigateTo('services')" class="px-4 py-2.5 bg-[#FB8500] hover:bg-[#e07700] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer self-start sm:self-auto">
+              + Book New Service
+            </button>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-2 mb-6">
+            <button onclick="setBookingsFilter('all')" id="b-filter-all" class="px-4 py-2 text-xs font-bold rounded-xl bg-[#023047] text-white cursor-pointer">All</button>
+            <button onclick="setBookingsFilter('active')" id="b-filter-active" class="px-4 py-2 text-xs font-bold rounded-xl bg-white border text-slate-600 cursor-pointer">Upcoming / Active</button>
+            <button onclick="setBookingsFilter('completed')" id="b-filter-completed" class="px-4 py-2 text-xs font-bold rounded-xl bg-white border text-slate-600 cursor-pointer">Completed</button>
+          </div>
+
+          <div id="bookings-dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Master Footer -->
+    <footer class="bg-[#023047] text-white pt-14 pb-8 border-t border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 border-b border-white/10">
+          <div class="lg:col-span-2 space-y-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                <i data-lucide="wrench" class="w-5 h-5 text-[#FFB703]"></i>
+              </div>
+              <span class="text-2xl font-black tracking-tight text-white">HS<span class="text-[#FB8500]">.com</span></span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed max-w-sm">
+              The premier on-demand home service booking network. Connecting homeowners with background-checked plumbers, electricians, carpenters, cleaners, and renovation specialists.
+            </p>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/10 max-w-sm flex items-center gap-3">
+              <i data-lucide="shield-check" class="w-6 h-6 text-[#8ECAE6] shrink-0"></i>
+              <div class="text-[11px] text-slate-300">
+                <strong class="text-white">30-Day Workmanship Warranty:</strong> If any service issue persists within 30 days, we fix it at no additional cost.
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-[#8ECAE6] uppercase tracking-wider mb-3">Core Services</h4>
+            <ul class="space-y-2 text-xs text-slate-300">
+              <li><button onclick="openServiceDetail('plumbing')" class="hover:text-[#FFB703] cursor-pointer">Plumbing</button></li>
+              <li><button onclick="openServiceDetail('electrician')" class="hover:text-[#FFB703] cursor-pointer">Electrician</button></li>
+              <li><button onclick="openServiceDetail('carpentry')" class="hover:text-[#FFB703] cursor-pointer">Carpentry</button></li>
+              <li><button onclick="openServiceDetail('painting')" class="hover:text-[#FFB703] cursor-pointer">Painting</button></li>
+              <li><button onclick="openServiceDetail('cleaning')" class="hover:text-[#FFB703] cursor-pointer">Cleaning</button></li>
+              <li><button onclick="openServiceDetail('ac-appliances')" class="hover:text-[#FFB703] cursor-pointer">AC & Appliances</button></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-[#8ECAE6] uppercase tracking-wider mb-3">Heavy & Outdoor</h4>
+            <ul class="space-y-2 text-xs text-slate-300">
+              <li><button onclick="openServiceDetail('labour-masonry')" class="hover:text-[#FFB703] cursor-pointer">Labour & Masonry</button></li>
+              <li><button onclick="openServiceDetail('pest-control')" class="hover:text-[#FFB703] cursor-pointer">Pest Control</button></li>
+              <li><button onclick="openServiceDetail('gardening')" class="hover:text-[#FFB703] cursor-pointer">Gardening</button></li>
+              <li><button onclick="openServiceDetail('shifting')" class="hover:text-[#FFB703] cursor-pointer">Shifting (Packers)</button></li>
+              <li><button onclick="openServiceDetail('home-security')" class="hover:text-[#FFB703] cursor-pointer">Home Security</button></li>
+              <li><button onclick="openServiceDetail('home-renovation')" class="hover:text-[#FFB703] cursor-pointer">Home Renovation</button></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-[#8ECAE6] uppercase tracking-wider mb-3">Helpline & Support</h4>
+            <div class="space-y-2.5 text-xs text-slate-300">
+              <div class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-[#FB8500]"></i><span class="font-mono">1-800-472-HOME</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-[#219EBC]"></i><span>support@hs.com</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#8ECAE6]"></i><span>Available nationwide across 8+ metros</span></div>
+              <div class="pt-2">
+                <button onclick="openEmergencyModal()" class="w-full py-2 px-3 bg-[#FB8500] hover:bg-[#e07700] text-white font-bold rounded-lg text-[11px] cursor-pointer">Emergency 45-Min Callout</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <div>© 2026 HS.com - Home Service Network. All rights reserved.</div>
+          <div class="flex items-center gap-4 text-[11px]">
+            <span>Privacy Policy</span><span>·</span><span>Terms of Service</span><span>·</span><span class="text-[#8ECAE6]">Frontend Single Page App</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- SERVICE DETAIL MODAL -->
+    <div id="service-detail-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+      <div class="relative bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+        <div class="relative h-48 sm:h-60 bg-slate-900 shrink-0 overflow-hidden">
+          <img id="modal-service-img" src="" alt="Service" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#023047] via-[#023047]/40 to-transparent"></div>
+          <button onclick="closeServiceDetail()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+          <div class="absolute bottom-4 left-4 right-4 text-white">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-[#FFB703] text-[#023047]">HS.com Certified</span>
+            <h2 id="modal-service-title" class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">Service Title</h2>
+            <div class="flex items-center gap-3 text-xs text-slate-200 mt-1">
+              <span id="modal-service-rating" class="flex items-center gap-1 text-[#FFB703] font-bold">★ 4.9</span>
+              <span>·</span>
+              <span id="modal-service-time">Est. 45-90 mins</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 sm:p-6 overflow-y-auto space-y-6">
+          <p id="modal-service-desc" class="text-sm text-slate-600 leading-relaxed"></p>
+          <div>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Select Package</h4>
+            <div id="modal-packages-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+            <div>
+              <h5 class="font-bold text-[#023047] mb-2 flex items-center gap-1 text-emerald-600"><i data-lucide="check-circle" class="w-4 h-4"></i> What's Included</h5>
+              <ul id="modal-included-list" class="space-y-1.5 text-slate-600"></ul>
+            </div>
+            <div>
+              <h5 class="font-bold text-[#023047] mb-2 flex items-center gap-1 text-rose-500"><i data-lucide="x-circle" class="w-4 h-4"></i> What's Excluded</h5>
+              <ul id="modal-excluded-list" class="space-y-1.5 text-slate-600"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 bg-white border-t border-slate-200 flex items-center justify-between gap-4 shrink-0">
+          <div>
+            <div class="text-[11px] font-semibold text-slate-400 uppercase">Package Price</div>
+            <div id="modal-active-price" class="text-2xl font-black text-[#023047]">$39</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="closeServiceDetail()" class="px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 rounded-xl cursor-pointer">Back</button>
+            <button onclick="startBookingFromModal()" class="px-6 py-2.5 text-xs font-bold text-white bg-[#FB8500] hover:bg-[#e07700] rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5">
+              <span>Book This Package</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MULTI-STEP BOOKING MODAL -->
+    <div id="booking-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+      <div class="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-[#023047] text-white flex items-center justify-center text-xs font-bold">HS</div>
+            <div>
+              <h3 id="booking-modal-title" class="text-sm font-extrabold text-[#023047]">Book Service</h3>
+              <p id="booking-modal-step-info" class="text-[11px] text-slate-500">Step 1 of 3: Select Date & Time</p>
+            </div>
+          </div>
+          <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div id="booking-progress-bar" class="w-full bg-slate-100 h-1">
+          <div id="booking-progress-fill" class="bg-[#219EBC] h-full w-1/3 transition-all duration-300"></div>
+        </div>
+
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1" id="booking-step-content">
+          <!-- Step 1, 2, 3, 4 dynamically rendered -->
+        </div>
+
+        <div id="booking-modal-footer" class="px-5 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+          <button onclick="prevBookingStep()" id="booking-back-btn" class="px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer hidden">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back
+          </button>
+          <div class="flex-1"></div>
+          <button onclick="nextBookingStep()" id="booking-next-btn" class="px-6 py-2.5 text-xs font-bold text-white bg-[#023047] hover:bg-[#219EBC] rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+            <span>Continue</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMERGENCY DISPATCH MODAL -->
+    <div id="emergency-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+      <div class="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+        <div class="p-5 bg-[#023047] text-white flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#FB8500] text-white flex items-center justify-center shadow-xs"><i data-lucide="phone-call" class="w-5 h-5"></i></div>
+            <div>
+              <h3 class="text-base font-extrabold flex items-center gap-2">Emergency 45-Min Response <span class="text-[10px] bg-red-500 text-white font-black px-2 py-0.5 rounded-full uppercase">LIVE</span></h3>
+              <p class="text-xs text-[#8ECAE6]">Guaranteed arrival within 45 mins</p>
+            </div>
+          </div>
+          <button onclick="closeEmergencyModal()" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="p-6">
+          <form onsubmit="handleEmergencySubmit(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-2">Select Emergency Situation</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="p-3 rounded-xl border flex flex-col justify-between cursor-pointer border-[#FB8500] bg-[#FB8500]/10">
+                  <div class="flex justify-between items-center mb-1"><i data-lucide="droplets" class="w-4 h-4 text-[#FB8500]"></i><span class="text-xs font-black">$79</span></div>
+                  <span class="text-xs font-bold">Burst Pipe / Leak</span>
+                  <input type="radio" name="emerg-issue" value="Burst Pipe" checked class="hidden" />
+                </label>
+                <label class="p-3 rounded-xl border flex flex-col justify-between cursor-pointer border-slate-200 hover:border-slate-300">
+                  <div class="flex justify-between items-center mb-1"><i data-lucide="zap" class="w-4 h-4 text-slate-500"></i><span class="text-xs font-black">$69</span></div>
+                  <span class="text-xs font-bold">Power Outage / Sparks</span>
+                  <input type="radio" name="emerg-issue" value="Power Outage" class="hidden" />
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1.5">Phone Number</label>
+              <input type="tel" required id="emerg-phone" value="+1 (555) 389-4920" class="w-full text-xs font-medium px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1.5">Your Street Address</label>
+              <input type="text" required id="emerg-addr" value="1244 Parkwood Boulevard" class="w-full text-xs font-medium px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none" />
+            </div>
+            <button type="submit" class="w-full py-3 bg-[#FB8500] hover:bg-[#e07700] text-white font-bold text-xs rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer">
+              Dispatch Emergency Pro Now ($79)
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOICE RECEIPT MODAL -->
+    <div id="receipt-modal" class="fixed inset-0 z-60 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h4 class="font-extrabold text-base text-[#023047]">Service Invoice Receipt</h4>
+          <button onclick="closeReceiptModal()" class="p-1 hover:bg-slate-100 rounded-full cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="text-xs space-y-2 text-slate-700" id="receipt-modal-content"></div>
+        <button onclick="closeReceiptModal()" class="w-full py-2 bg-[#023047] text-white text-xs font-bold rounded-xl cursor-pointer">Close Receipt</button>
+      </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT CONTROLLER SCRIPT EMBEDDED DIRECTLY IN INDEX.HTML -->
+    <script>
+      // 1. DATA REPOSITORY
+      const CITIES = ['Austin, TX', 'Seattle, WA', 'San Francisco, CA', 'Denver, CO', 'Chicago, IL', 'New York, NY', 'Dallas, TX', 'Atlanta, GA'];
+      
+      const SERVICES = [
+        {
+          id: 'plumbing',
+          title: 'Plumbing',
+          category: 'repairs',
+          shortDesc: 'Pipe leak repairs, drain unclogging, tap fittings & emergency water line fixes.',
+          fullDesc: 'Comprehensive residential plumbing services by licensed plumbers. From dripping faucets and clogged wastewater drains to full bathroom fixture installations and high-pressure pipe repairs.',
+          image: './src/assets/images/service_plumbing_1791614461545.jpg',
+          startingPrice: 39,
+          rating: 4.9,
+          reviewsCount: 1420,
+          avgTime: '45-90 mins',
+          warrantyDays: 30,
+          packages: [
+            { id: 'p1', name: 'Tap & Pipe Leak Fix', price: 39, duration: '45 mins', desc: 'Fix up to 2 leaking faucets or valves.' },
+            { id: 'p2', name: 'Deep Drain Unclogging', price: 59, duration: '60 mins', desc: 'Motorized snake clearing for kitchen/bathroom drains.' },
+            { id: 'p3', name: 'Fixture Installation', price: 79, duration: '90 mins', desc: 'Mount new faucet, mixer, sink, or showerhead.' }
+          ],
+          included: ['Labor charges and sealant tape', 'Site cleanup after service', '30-day warranty'],
+          excluded: ['Major spare parts or replacement sinks']
+        },
+        {
+          id: 'electrician',
+          title: 'Electrician',
+          category: 'repairs',
+          shortDesc: 'Short-circuit fixes, switchboard wiring, fan & light fixture installations.',
+          fullDesc: 'Safety-certified master electricians ready for all domestic electrical needs. We resolve tripped MCBs, install designer chandeliers, repair power sockets, and rewire electrical panels.',
+          image: './src/assets/images/service_electrician_1791614482428.jpg',
+          startingPrice: 35,
+          rating: 4.85,
+          reviewsCount: 1890,
+          avgTime: '30-60 mins',
+          warrantyDays: 30,
+          packages: [
+            { id: 'e1', name: 'Switch & Socket Fix', price: 35, duration: '30 mins', desc: 'Repair up to 3 faulty switches or 16A wall sockets.' },
+            { id: 'e2', name: 'Light & Fan Fitting', price: 49, duration: '45 mins', desc: 'Mount and balance ceiling fan or chandelier.' },
+            { id: 'e3', name: 'MCB / Fuse Box Repair', price: 69, duration: '60 mins', desc: 'Troubleshoot breaker tripping and overload.' }
+          ],
+          included: ['Multimeter load diagnostic', 'Safety testing', '30-day warranty'],
+          excluded: ['Cost of high-amperage breakers or designer lamps']
+        },
+        {
+          id: 'carpentry',
+          title: 'Carpentry',
+          category: 'renovation',
+          shortDesc: 'Custom furniture repair, door lock fixes, hinge alignment & cabinet woodwork.',
+          fullDesc: 'Skilled woodwork artisans for modern and vintage homes. Door leveling, drawer channels, hinge repairs, and bespoke shelf modifications.',
+          image: './src/assets/images/service_carpentry_1791614511014.jpg',
+          startingPrice: 45,
+          rating: 4.9,
+          reviewsCount: 960,
+          avgTime: '60-120 mins',
+          warrantyDays: 30,
+          packages: [
+            { id: 'c1', name: 'Door & Lock Alignment', price: 45, duration: '45 mins', desc: 'Plane sticking door edges, grease hinges, adjust deadbolt.' },
+            { id: 'c2', name: 'Cabinet Drawer Repair', price: 65, duration: '75 mins', desc: 'Fix telescopic runners and hydraulic soft-close hinges.' },
+            { id: 'c3', name: 'Furniture Assembly', price: 79, duration: '90 mins', desc: 'Assemble beds, tables, and flat-pack furniture.' }
+          ],
+          included: ['Artisan tools and screws', 'Dust cleanup', '30-day warranty'],
+          excluded: ['New timber or specialty branded locksets']
+        },
+        {
+          id: 'painting',
+          title: 'Painting',
+          category: 'renovation',
+          shortDesc: 'Interior wall painting, accent walls, damp patch treatment & waterproof primer.',
+          fullDesc: 'Transform your living spaces with pristine paint jobs. Our painters use odorless, low-VOC washable paints, meticulous surface masking, putty smoothing, and dual-coat roller application.',
+          image: './src/assets/images/service_painting_1791614572753.jpg',
+          startingPrice: 89,
+          rating: 4.88,
+          reviewsCount: 1120,
+          avgTime: '1-2 days',
+          warrantyDays: 90,
+          packages: [
+            { id: 'pt1', name: 'Single Wall Touch-up', price: 89, duration: '3 hours', desc: 'Crack filling, sanding, primer and 2 coats for 1 wall.' },
+            { id: 'pt2', name: 'Full Room Repaint (12x12)', price: 189, duration: '1 day', desc: 'Ceiling and 4 walls refresh with premium matte/satin finish.' },
+            { id: 'pt3', name: 'Waterproof Damp Seal', price: 149, duration: '5 hours', desc: 'Anti-fungal microbial primer coat for peeling walls.' }
+          ],
+          included: ['Masking tape & drop cloths', 'Rollers & ladders', '90-day anti-peel guarantee'],
+          excluded: ['Cost of paint cans (billed at dealer rate or owner supplied)']
+        },
+        {
+          id: 'cleaning',
+          title: 'Cleaning',
+          category: 'cleaning',
+          shortDesc: 'Deep home cleaning, kitchen degreasing, bathroom descaling & sofa shampoo.',
+          fullDesc: 'Hospital-grade cleanliness for your home. We use industrial steam vacuum cleaners, single-disc floor scrubbers, eco-friendly descalers, and sanitizers.',
+          image: './src/assets/images/service_cleaning_1791616531799.jpg',
+          startingPrice: 49,
+          rating: 4.92,
+          reviewsCount: 2450,
+          avgTime: '2-4 hours',
+          warrantyDays: 7,
+          packages: [
+            { id: 'cl1', name: 'Bathroom Intensive Scrub', price: 49, duration: '90 mins', desc: 'Limescale removal, tile grout scrub, tap buffing.' },
+            { id: 'cl2', name: 'Kitchen Degrease & Polish', price: 69, duration: '2 hours', desc: 'Chimney oil removal, cooktop scrub, floor wash.' },
+            { id: 'cl3', name: 'Full Home Deep Clean', price: 159, duration: '4-5 hours', desc: 'Complete scrub of all rooms, windows, balconies, floors.' }
+          ],
+          included: ['All machines and specialized cleaning chemicals', 'PPE gear'],
+          excluded: ['Inside wardrobe folding']
+        },
+        {
+          id: 'ac-appliances',
+          title: 'AC & Appliances',
+          category: 'repairs',
+          shortDesc: 'AC jet cleaning, gas refill, refrigerator, washing machine & microwave repair.',
+          fullDesc: 'Keep vital home appliances running at peak performance. Our technicians diagnose cooling issues, replace faulty capacitors, refill refrigerant, and fix motor errors.',
+          image: './src/assets/images/service_ac_cooling_1791614539859.jpg',
+          startingPrice: 42,
+          rating: 4.89,
+          reviewsCount: 1670,
+          avgTime: '45-90 mins',
+          warrantyDays: 60,
+          packages: [
+            { id: 'ac1', name: 'AC Foam Jet Wash', price: 42, duration: '45 mins', desc: 'High-pressure jet wash for indoor coil and outdoor unit.' },
+            { id: 'ac2', name: 'Refrigerant Gas Top-Up', price: 69, duration: '60 mins', desc: 'Nitrogen leak test, vacuuming and precise gas refill.' },
+            { id: 'ac3', name: 'Washing Machine Repair', price: 55, duration: '60 mins', desc: 'Drum vibration, drainage failure or PCB error fix.' }
+          ],
+          included: ['Jet wash equipment', '60-day repair guarantee'],
+          excluded: ['Cost of compressor or new PCB motherboard']
+        },
+        {
+          id: 'labour-masonry',
+          title: 'Labour & Masonry',
+          category: 'heavy',
+          shortDesc: 'Tile chipping & relaying, brick wall repair, plastering, and helper labour.',
+          fullDesc: 'Heavy construction, masonry repairs, and general site labour. Tile replacement, brick boundary wall fix, and on-demand helper labour.',
+          image: './src/assets/images/service_masonry_1791616545622.jpg',
+          startingPrice: 55,
+          rating: 4.82,
+          reviewsCount: 780,
+          avgTime: '2-4 hours',
+          warrantyDays: 30,
+          packages: [
+            { id: 'm1', name: 'Tile Replacement (Up to 4)', price: 55, duration: '90 mins', desc: 'Chip cracked tiles and relay with epoxy adhesive.' },
+            { id: 'm2', name: 'Wall Plaster & Patch Repair', price: 75, duration: '2 hours', desc: 'Cement mortar application and smooth float finish.' },
+            { id: 'm3', name: 'Helper Labour (Half Day)', price: 49, duration: '4 hours', desc: 'Physical helper for material shifting and debris cleanup.' }
+          ],
+          included: ['Mason tools & spirit level', 'Site sweeping'],
+          excluded: ['Bulk sand trucks & cement bags']
+        },
+        {
+          id: 'pest-control',
+          title: 'Pest Control',
+          category: 'cleaning',
+          shortDesc: 'Cockroach gel treatment, termite eradication, bed bug heat fix & mosquito fogging.',
+          fullDesc: 'Guaranteed pest-free living without harsh fumes. We utilize odorless synthetic pyrethroids, micro-gel baiting, and targeted perimeter sprays.',
+          image: './src/assets/images/service_pest_control_1791616555886.jpg',
+          startingPrice: 38,
+          rating: 4.87,
+          reviewsCount: 1340,
+          avgTime: '45-90 mins',
+          warrantyDays: 90,
+          packages: [
+            { id: 'pc1', name: 'Cockroach & Ant Dot Gel', price: 38, duration: '45 mins', desc: '100% odorless gel dots in hinges, under sink.' },
+            { id: 'pc2', name: 'Bed Bug Eradication (2 Visits)', price: 85, duration: '60 mins', desc: 'Deep crevice spray plus follow-up cycle visit.' },
+            { id: 'pc3', name: 'Termite Barrier Injection', price: 129, duration: '2 hours', desc: 'Drill-fill-seal perimeter barrier with 1-year guarantee.' }
+          ],
+          included: ['Certified Bayer chemicals', '90-day free re-treatment'],
+          excluded: ['Replacement of damaged structural timber']
+        },
+        {
+          id: 'gardening',
+          title: 'Gardening',
+          category: 'outdoor',
+          shortDesc: 'Lawn mowing, hedge trimming, plant repotting, organic fertilizing & drip setup.',
+          fullDesc: 'Revitalize your outdoor lawn, terrace pots, or indoor greenery. Hedge pruning, tree trimming, enriched organic repotting, and micro-irrigation.',
+          image: './src/assets/images/service_gardening_1791616567770.jpg',
+          startingPrice: 39,
+          rating: 4.93,
+          reviewsCount: 890,
+          avgTime: '2-3 hours',
+          warrantyDays: 14,
+          packages: [
+            { id: 'g1', name: 'Lawn Mowing & Edge Trim', price: 49, duration: '90 mins', desc: 'Motorized cut for up to 1000 sq ft and hedge shaping.' },
+            { id: 'g2', name: 'Repotting & Soil Mix (10 Pots)', price: 39, duration: '75 mins', desc: 'Coco-peat and organic compost replenishment.' },
+            { id: 'g3', name: 'Balcony Drip Irrigation Setup', price: 119, duration: '2 hours', desc: 'Install UV drip pipe and emitters for up to 25 pots.' }
+          ],
+          included: ['Gardening shears & mower', 'Green waste bagging'],
+          excluded: ['Cost of exotic plants or designer ceramic planters']
+        },
+        {
+          id: 'shifting',
+          title: 'Shifting',
+          category: 'heavy',
+          shortDesc: 'House shifting, furniture disassembly, bubble wrapping & local relocation.',
+          fullDesc: 'Stress-free packers and movers for local city shifting. Multi-layer bubble wrapping, protective blankets, truck dispatch, and doorstep reassembly.',
+          image: './src/assets/images/service_shifting_1791616616585.jpg',
+          startingPrice: 99,
+          rating: 4.86,
+          reviewsCount: 1540,
+          avgTime: '3-6 hours',
+          warrantyDays: 14,
+          packages: [
+            { id: 'sh1', name: '1 BHK / Mini Shifting', price: 99, duration: '3 hours', desc: 'Dedicated mini-truck, 2 loaders, furniture wrapping.' },
+            { id: 'sh2', name: '2-3 BHK Full Move', price: 199, duration: '5 hours', desc: 'Covered container truck, 4 skilled packers, box pack.' },
+            { id: 'sh3', name: 'Heavy Single Item Move', price: 69, duration: '90 mins', desc: 'Safe transport of piano, king fridge or treadmill.' }
+          ],
+          included: ['Moving truck & driver', 'Loading & unloading', 'Transit damage cover'],
+          excluded: ['Balcony crane hoisting']
+        },
+        {
+          id: 'home-security',
+          title: 'Home Security',
+          category: 'repairs',
+          shortDesc: 'CCTV camera installation, smart door locks, video doorbells & security audit.',
+          fullDesc: 'Protect what matters most. We install IP CCTV cameras with night vision, setup smart biometric deadbolt locks, and configure real-time mobile app alerts.',
+          image: './src/assets/images/service_security_1791616629173.jpg',
+          startingPrice: 49,
+          rating: 4.91,
+          reviewsCount: 650,
+          avgTime: '60-120 mins',
+          warrantyDays: 60,
+          packages: [
+            { id: 'sec1', name: 'CCTV Install (Up to 2 Cams)', price: 49, duration: '60 mins', desc: 'Precision mounting, cabling, app live-view pairing.' },
+            { id: 'sec2', name: 'Smart Biometric Lock Setup', price: 79, duration: '90 mins', desc: 'Door mortise fitting and fingerprint registration.' },
+            { id: 'sec3', name: 'Smart Video Doorbell Fitting', price: 45, duration: '45 mins', desc: 'Transformer check, viewing angle mount, Wi-Fi test.' }
+          ],
+          included: ['Mounting hardware & clips', 'Customer app training', '60-day guarantee'],
+          excluded: ['Camera hardware or smart lock device cost']
+        },
+        {
+          id: 'home-renovation',
+          title: 'Home Renovation',
+          category: 'renovation',
+          shortDesc: 'Kitchen remodeling, bathroom makeover, false ceiling, and full interior upgrade.',
+          fullDesc: 'End-to-end residential renovation. Modular kitchens with quartz countertops, luxury bathrooms, false ceilings, and turnkey interior design.',
+          image: './src/assets/images/service_renovation_1791616641617.jpg',
+          startingPrice: 199,
+          rating: 4.95,
+          reviewsCount: 840,
+          avgTime: 'Custom schedule',
+          warrantyDays: 365,
+          packages: [
+            { id: 'rn1', name: 'Bathroom Vanity & Diverter', price: 299, duration: '3-5 days', desc: 'Tile overlay, concealed diverter, floating vanity.' },
+            { id: 'rn2', name: 'Modular Kitchen Remodel', price: 499, duration: '5-7 days', desc: 'Quartz countertop, marine-ply soft-close cabinets.' },
+            { id: 'rn3', name: 'Renovation Consultation & 3D', price: 49, duration: '90 mins', desc: 'Architect site visit, 3D render plan, itemized estimate.' }
+          ],
+          included: ['Project supervisor', '1-year structural guarantee'],
+          excluded: ['Raw tiles and kitchen appliances']
+        }
+      ];
+
+      const PROS = [
+        { name: 'David Rodriguez', spec: 'Master Plumber', exp: '12 years', rate: 45, rating: 4.95, jobs: 1420, img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80', bio: 'Licensed contractor specializing in leak detection, water line replacement, and fixture fittings.' },
+        { name: 'Elena Rostova', spec: 'Licensed Electrician', exp: '9 years', rate: 48, rating: 4.92, jobs: 980, img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80', bio: 'Certified master electrician focusing on smart home panel upgrades and fire-safe conduit wiring.' },
+        { name: 'Marcus Chen', spec: 'HVAC Specialist', exp: '8 years', rate: 42, rating: 4.89, jobs: 1140, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80', bio: 'Factory-trained technician for multi-split air conditioners, compressor checks, and gas refills.' },
+        { name: 'James Wilson', spec: 'Master Carpenter', exp: '15 years', rate: 52, rating: 4.98, jobs: 1850, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80', bio: 'Artisan woodworker for custom shelving, door realignment, modular kitchens, and structural frames.' }
+      ];
+
+      let REVIEWS = [
+        { author: 'Sarah Jenkins', city: 'Austin, TX', service: 'Plumbing (Tap Leak Fix)', rating: 5, date: '3 days ago', comment: 'Plumber David arrived right on time with all tools. He fixed a persistent leak in 35 minutes. Outstanding service!', img: './src/assets/images/review_plumbing_1791616861833.jpg' },
+        { author: 'Michael Bradley', city: 'Seattle, WA', service: 'AC & Appliances (Jet Wash)', rating: 5, date: '1 week ago', comment: 'Our dual AC units were barely cooling. Marcus performed the foam jet wash and the difference was instantaneous!', img: './src/assets/images/review_ac_1791616876584.jpg' },
+        { author: 'Amina Patel', city: 'San Francisco, CA', service: 'Carpentry (Door Alignment)', rating: 5, date: '2 weeks ago', comment: 'Had 3 doors jamming against the hardwood floor. James planed them smoothly and oiled hinges. So courteous!', img: './src/assets/images/review_carpentry_1791616891076.jpg' },
+        { author: 'Robert Vance', city: 'Denver, CO', service: 'Cleaning (Full Home Deep Clean)', rating: 5, date: '3 weeks ago', comment: 'The team spent 5 hours scrubbing every nook and cranny before move-in. The floors look brand new. HS.com is my go-to!', img: './src/assets/images/review_cleaning_1791616904739.jpg' }
+      ];
+
+      // 2. APPLICATION STATE
+      let currentCity = localStorage.getItem('hs_city') || 'Austin, TX';
+      let activeCategory = 'all';
+      let activeSearchQuery = '';
+      let activeSort = 'recommended';
+      let bookings = JSON.parse(localStorage.getItem('hs_bookings_data')) || [
+        {
+          id: 'HS-84291',
+          serviceTitle: 'AC & Appliances',
+          packageName: 'AC Foam Jet Servicing',
+          date: 'Tomorrow, Oct 11',
+          timeSlot: '11:00 AM - 12:30 PM',
+          price: 42,
+          totalPrice: 42,
+          status: 'confirmed',
+          address: '742 Evergreen Terrace, Suite 4B, Austin, TX',
+          customerName: 'Alex Morgan'
+        },
+        {
+          id: 'HS-79104',
+          serviceTitle: 'Plumbing',
+          packageName: 'Tap & Pipe Leak Fix',
+          date: 'Oct 04, 2026',
+          timeSlot: '02:30 PM - 04:00 PM',
+          price: 39,
+          totalPrice: 34,
+          status: 'completed',
+          address: '742 Evergreen Terrace, Suite 4B, Austin, TX',
+          customerName: 'Alex Morgan'
+        }
+      ];
+      let favorites = JSON.parse(localStorage.getItem('hs_favs')) || ['plumbing', 'electrician'];
+
+      // Active booking flow state
+      let bookingState = {
+        step: 1,
+        service: null,
+        package: null,
+        dateType: 'tomorrow',
+        customDate: '2026-10-12',
+        timeSlot: '10:30 AM - 12:00 PM',
+        name: 'Alex Morgan',
+        phone: '+1 (555) 389-4920',
+        address: '1244 Parkwood Blvd, Apt 5B',
+        promoCode: '',
+        discount: 0,
+        paymentMethod: 'pay_after_service',
+        confirmedId: null
+      };
+
+      let activeDetailService = null;
+      let activeDetailPackage = null;
+      let bookingsFilter = 'all';
+
+      // 3. CORE CONTROLLER FUNCTIONS
+      function initApp() {
+        // Render cities
+        document.getElementById('selected-city-text').innerText = currentCity;
+        document.querySelectorAll('.current-city-label').forEach(el => el.innerText = currentCity);
+        renderCityDropdown();
+
+        // Render categories and services
+        renderCategoryTabs();
+        renderServices();
+
+        // Render pros & reviews
+        renderPros();
+        renderReviews();
+
+        // Update booking badge
+        updateBookingBadges();
+
+        // Check URL hash for routing
+        handleHashRoute();
+        window.addEventListener('hashchange', handleHashRoute);
+
+        // Re-initialize Lucide icons
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const text = document.getElementById('toast-text');
+        text.innerText = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3500);
+      }
+
+      function updateBookingBadges() {
+        const activeCount = bookings.filter(b => b.status === 'confirmed').length;
+        const navBadge = document.getElementById('nav-booking-badge');
+        const mobBadge = document.getElementById('mobile-booking-badge');
+        if (activeCount > 0) {
+          navBadge.innerText = activeCount;
+          navBadge.classList.remove('hidden');
+          mobBadge.innerText = activeCount;
+          mobBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+          mobBadge.classList.add('hidden');
+        }
+      }
+
+      function renderCityDropdown() {
+        const container = document.getElementById('city-list');
+        const select = document.getElementById('mobile-city-select');
+        container.innerHTML = '';
+        select.innerHTML = '';
+        CITIES.forEach(c => {
+          const btn = document.createElement('button');
+          btn.className = `w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-slate-50 cursor-pointer ${c === currentCity ? 'text-[#219EBC] font-bold bg-[#8ECAE6]/10' : 'text-slate-700'}`;
+          btn.innerHTML = `<span>${c}</span>${c === currentCity ? '<span class="w-1.5 h-1.5 rounded-full bg-[#219EBC]"></span>' : ''}`;
+          btn.onclick = () => changeCity(c);
+          container.appendChild(btn);
+
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.innerText = c;
+          if (c === currentCity) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      function toggleCityDropdown() {
+        document.getElementById('city-dropdown').classList.toggle('hidden');
+      }
+
+      function changeCity(city) {
+        currentCity = city;
+        localStorage.setItem('hs_city', city);
+        document.getElementById('selected-city-text').innerText = city;
+        document.querySelectorAll('.current-city-label').forEach(el => el.innerText = city);
+        document.getElementById('city-dropdown').classList.add('hidden');
+        renderCityDropdown();
+        showToast(`City changed to ${city}`);
+      }
+
+      function toggleMobileMenu() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+      }
+
+      // 4. NAVIGATION & PAGE ROUTING (All from index.html)
+      function navigateTo(page) {
+        window.location.hash = page === 'home' ? '' : page;
+        handlePageSwitch(page);
+      }
+
+      function handleHashRoute() {
+        const hash = window.location.hash.replace('#', '') || 'home';
+        handlePageSwitch(hash);
+      }
+
+      function handlePageSwitch(page) {
+        // Reset nav links
+        ['home', 'services', 'how-it-works', 'top-pros', 'reviews', 'bookings'].forEach(p => {
+          const btn = document.getElementById(`nav-${p}`);
+          if (btn) {
+            if (p === page) btn.classList.add('text-[#219EBC]', 'font-bold');
+            else btn.classList.remove('text-[#219EBC]', 'font-bold');
+          }
+        });
+
+        // Show/hide sections
+        const hero = document.getElementById('hero-section');
+        const services = document.getElementById('services-section');
+        const howItWorks = document.getElementById('how-it-works-section');
+        const emergency = document.getElementById('emergency-section');
+        const pros = document.getElementById('top-pros-section');
+        const reviews = document.getElementById('reviews-section');
+        const bookingsView = document.getElementById('bookings-view-section');
+
+        if (page === 'bookings') {
+          hero.classList.add('hidden');
+          services.classList.add('hidden');
+          howItWorks.classList.add('hidden');
+          emergency.classList.add('hidden');
+          pros.classList.add('hidden');
+          reviews.classList.add('hidden');
+          bookingsView.classList.remove('hidden');
+          renderBookingsDashboard();
+        } else if (page === 'services') {
+          hero.classList.add('hidden');
+          services.classList.remove('hidden');
+          howItWorks.classList.add('hidden');
+          emergency.classList.add('hidden');
+          pros.classList.add('hidden');
+          reviews.classList.add('hidden');
+          bookingsView.classList.add('hidden');
+        } else if (page === 'how-it-works') {
+          hero.classList.add('hidden');
+          services.classList.add('hidden');
+          howItWorks.classList.remove('hidden');
+          emergency.classList.add('hidden');
+          pros.classList.add('hidden');
+          reviews.classList.add('hidden');
+          bookingsView.classList.add('hidden');
+        } else if (page === 'top-pros') {
+          hero.classList.add('hidden');
+          services.classList.add('hidden');
+          howItWorks.classList.add('hidden');
+          emergency.classList.add('hidden');
+          pros.classList.remove('hidden');
+          reviews.classList.add('hidden');
+          bookingsView.classList.add('hidden');
+        } else if (page === 'reviews') {
+          hero.classList.add('hidden');
+          services.classList.add('hidden');
+          howItWorks.classList.add('hidden');
+          emergency.classList.add('hidden');
+          pros.classList.add('hidden');
+          reviews.classList.remove('hidden');
+          bookingsView.classList.add('hidden');
+        } else {
+          // Home view shows full experience
+          hero.classList.remove('hidden');
+          services.classList.remove('hidden');
+          howItWorks.classList.remove('hidden');
+          emergency.classList.remove('hidden');
+          pros.classList.remove('hidden');
+          reviews.classList.remove('hidden');
+          bookingsView.classList.add('hidden');
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // 5. SERVICES RENDERING (Grid: 4 per row desktop, 2 per row phone)
+      function renderCategoryTabs() {
+        const categories = [
+          { id: 'all', label: 'All Services' },
+          { id: 'repairs', label: 'Repairs & Electrical' },
+          { id: 'cleaning', label: 'Cleaning & Pest' },
+          { id: 'renovation', label: 'Carpentry & Decor' },
+          { id: 'outdoor', label: 'Gardening & Outdoor' },
+          { id: 'heavy', label: 'Labour & Relocation' }
+        ];
+
+        const container = document.getElementById('category-tabs');
+        container.innerHTML = '';
+        categories.forEach(c => {
+          const btn = document.createElement('button');
+          const isActive = activeCategory === c.id;
+          btn.className = `px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all shrink-0 cursor-pointer ${isActive ? 'bg-[#023047] text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`;
+          btn.innerText = c.label;
+          btn.onclick = () => {
+            activeCategory = c.id;
+            renderCategoryTabs();
+            renderServices();
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      function renderServices() {
+        const container = document.getElementById('services-grid-container');
+        container.innerHTML = '';
+
+        let list = [...SERVICES];
+
+        // Filter category
+        if (activeCategory !== 'all') {
+          list = list.filter(s => s.category === activeCategory);
+        }
+
+        // Filter search
+        if (activeSearchQuery.trim()) {
+          const q = activeSearchQuery.toLowerCase();
+          list = list.filter(s => s.title.toLowerCase().includes(q) || s.shortDesc.toLowerCase().includes(q));
+          document.getElementById('search-indicator').classList.remove('hidden');
+          document.getElementById('search-query-text').innerText = activeSearchQuery;
+          document.getElementById('search-count').innerText = list.length;
+        } else {
+          document.getElementById('search-indicator').classList.add('hidden');
+        }
+
+        // Sort
+        const sortVal = document.getElementById('sort-select').value;
+        if (sortVal === 'price-low') list.sort((a,b) => a.startingPrice - b.startingPrice);
+        else if (sortVal === 'price-high') list.sort((a,b) => b.startingPrice - a.startingPrice);
+        else if (sortVal === 'rating') list.sort((a,b) => b.rating - a.rating);
+
+        list.forEach(s => {
+          const isFav = favorites.includes(s.id);
+          const card = document.createElement('div');
+          card.className = 'group bg-white rounded-2xl border border-slate-200/90 hover:border-[#219EBC]/60 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative';
+          card.innerHTML = `
+            <div class="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden cursor-pointer" onclick="openServiceDetail('${s.id}')">
+              <img src="${s.image}" alt="${s.title}" class="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=80'" />
+              <button onclick="event.stopPropagation(); toggleFav('${s.id}')" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-slate-500 hover:text-rose-500 shadow-xs z-10 cursor-pointer">
+                <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-rose-500 text-rose-500' : ''}"></i>
+              </button>
+              <div class="absolute bottom-2.5 left-2.5 bg-[#023047]/95 text-white px-2.5 py-1 rounded-lg text-xs font-bold">
+                <span class="text-[#8ECAE6] text-[10px] mr-1">From</span>
+                <span class="font-extrabold">$${s.startingPrice}</span>
+              </div>
+            </div>
+            <div class="p-3 sm:p-4.5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <div class="flex items-center gap-1 font-bold text-[#023047]">
+                    <i data-lucide="star" class="w-3.5 h-3.5 fill-[#FFB703] text-[#FFB703]"></i>
+                    <span>${s.rating}</span>
+                    <span class="text-slate-400 font-normal">(${s.reviewsCount})</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 hidden sm:inline">${s.avgTime}</span>
+                </div>
+                <h3 class="text-base font-bold text-[#023047] group-hover:text-[#219EBC] transition-colors leading-snug line-clamp-1 cursor-pointer" onclick="openServiceDetail('${s.id}')">${s.title}</h3>
+                <p class="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">${s.shortDesc}</p>
+              </div>
+              <div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center gap-2">
+                <button onclick="openServiceDetail('${s.id}')" class="flex-1 py-2 px-2.5 text-xs font-bold text-[#023047] bg-slate-100 hover:bg-[#8ECAE6]/25 rounded-lg transition-colors text-center cursor-pointer">Details</button>
+                <button onclick="startBookingDirect('${s.id}')" class="flex-1 py-2 px-2.5 text-xs font-bold text-white bg-[#023047] group-hover:bg-[#FB8500] rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer">
+                  <span>Book</span>
+                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function handleHeroSearch(e) {
+        if (e.key === 'Enter') submitHeroSearch();
+      }
+
+      function submitHeroSearch() {
+        const val = document.getElementById('hero-search-input').value;
+        activeSearchQuery = val;
+        navigateTo('services');
+        renderServices();
+      }
+
+      function filterByTag(tag) {
+        activeSearchQuery = tag;
+        document.getElementById('hero-search-input').value = tag;
+        navigateTo('services');
+        renderServices();
+      }
+
+      function clearSearch() {
+        activeSearchQuery = '';
+        document.getElementById('hero-search-input').value = '';
+        renderServices();
+      }
+
+      function toggleFav(id) {
+        if (favorites.includes(id)) {
+          favorites = favorites.filter(f => f !== id);
+          showToast('Removed from saved services');
+        } else {
+          favorites.push(id);
+          showToast('Added to saved services');
+        }
+        localStorage.setItem('hs_favs', JSON.stringify(favorites));
+        renderServices();
+      }
+
+      // 6. PROS & REVIEWS RENDERING
+      function renderPros() {
+        const container = document.getElementById('pros-grid');
+        container.innerHTML = '';
+        PROS.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'group bg-white rounded-3xl border border-slate-200/90 hover:border-[#219EBC]/60 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between';
+          card.innerHTML = `
+            <div>
+              <div class="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden">
+                <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#023047]/90 via-[#023047]/20 to-transparent"></div>
+                <div class="absolute top-3 left-3 bg-[#023047]/85 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-[#8ECAE6]"></i><span>ID Verified</span>
+                </div>
+                <div class="absolute top-3 right-3 bg-white/90 text-[#023047] text-xs font-extrabold px-2.5 py-1 rounded-lg">$${p.rate}/hr</div>
+                <div class="absolute bottom-3 left-3 right-3 text-white">
+                  <h3 class="text-base font-extrabold">${p.name}</h3>
+                  <p class="text-xs text-[#8ECAE6] font-semibold">${p.spec}</p>
+                </div>
+              </div>
+              <div class="p-4 sm:p-5 space-y-3">
+                <div class="flex items-center justify-between text-xs pb-3 border-b border-slate-100">
+                  <div class="flex items-center gap-1 font-bold text-[#023047]">
+                    <i data-lucide="star" class="w-3.5 h-3.5 fill-[#FFB703] text-[#FFB703]"></i>
+                    <span>${p.rating}</span>
+                    <span class="text-slate-400 font-normal">(${p.jobs} jobs)</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-[#023047] bg-[#8ECAE6]/30 px-2 py-0.5 rounded-md">${p.exp} exp</span>
+                </div>
+                <p class="text-xs text-slate-500 line-clamp-3 leading-relaxed">${p.bio}</p>
+              </div>
+            </div>
+            <div class="p-4 sm:p-5 pt-0">
+              <button onclick="requestPro('${p.spec}')" class="w-full py-2.5 px-3 text-xs font-bold text-[#023047] hover:text-white bg-slate-100 hover:bg-[#023047] rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>Book ${p.name.split(' ')[0]}</span>
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      function requestPro(spec) {
+        const found = SERVICES.find(s => spec.toLowerCase().includes(s.title.toLowerCase()) || s.title.toLowerCase().includes(spec.toLowerCase())) || SERVICES[0];
+        startBookingDirect(found.id);
+      }
+
+      function renderReviews() {
+        const container = document.getElementById('reviews-grid');
+        container.innerHTML = '';
+        REVIEWS.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'group rounded-2xl bg-slate-50 border border-slate-200/90 hover:border-[#219EBC]/60 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between';
+          card.innerHTML = `
+            <div>
+              <div class="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
+                <img src="${r.img}" alt="${r.service}" class="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=80'" />
+                <div class="absolute top-2.5 right-2.5 bg-[#023047]/85 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <i data-lucide="camera" class="w-3 h-3 text-[#FFB703]"></i><span>Verified Result</span>
+                </div>
+              </div>
+              <div class="p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-0.5 text-[#FFB703]">
+                    ${'★'.repeat(r.rating)}
+                  </div>
+                  <span class="text-[11px] text-slate-400 font-medium">${r.date}</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mb-3">"${r.comment}"</p>
+              </div>
+            </div>
+            <div class="p-4 sm:p-5 pt-0">
+              <div class="pt-3 border-t border-slate-200/70 flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-extrabold text-[#023047]">${r.author}</h4>
+                  <p class="text-[11px] text-slate-400">${r.city}</p>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full flex items-center gap-1">Verified</span>
+              </div>
+              <div class="text-[10px] text-[#219EBC] font-bold mt-1.5 truncate">${r.service}</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      function toggleReviewForm() {
+        const f = document.getElementById('add-review-form-container');
+        f.classList.toggle('hidden');
+        document.getElementById('review-form-btn-text').innerText = f.classList.contains('hidden') ? 'Write a Review' : 'Close Form';
+      }
+
+      function submitReview(e) {
+        e.preventDefault();
+        const author = document.getElementById('rev-author').value;
+        const service = document.getElementById('rev-service').value;
+        const rating = parseInt(document.getElementById('rev-rating').value);
+        const comment = document.getElementById('rev-comment').value;
+
+        REVIEWS.unshift({
+          author,
+          city: currentCity,
+          service,
+          rating,
+          date: 'Just now',
+          comment,
+          img: './src/assets/images/review_cleaning_1791616904739.jpg'
+        });
+
+        renderReviews();
+        toggleReviewForm();
+        showToast('Review submitted successfully!');
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // 7. SERVICE DETAIL MODAL
+      function openServiceDetail(id) {
+        const s = SERVICES.find(item => item.id === id);
+        if (!s) return;
+        activeDetailService = s;
+        activeDetailPackage = s.packages[0];
+
+        document.getElementById('modal-service-img').src = s.image;
+        document.getElementById('modal-service-title').innerText = s.title;
+        document.getElementById('modal-service-rating').innerText = `★ ${s.rating} (${s.reviewsCount} reviews)`;
+        document.getElementById('modal-service-time').innerText = `Est. ${s.avgTime}`;
+        document.getElementById('modal-service-desc').innerText = s.fullDesc;
+        document.getElementById('modal-active-price').innerText = `$${activeDetailPackage.price}`;
+
+        // Render packages
+        const pkgContainer = document.getElementById('modal-packages-container');
+        pkgContainer.innerHTML = '';
+        s.packages.forEach((pkg, idx) => {
+          const isSelected = idx === 0;
+          const div = document.createElement('div');
+          div.id = `pkg-card-${pkg.id}`;
+          div.className = `p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${isSelected ? 'border-[#219EBC] bg-[#8ECAE6]/10 ring-1 ring-[#219EBC]' : 'border-slate-200 bg-white'}`;
+          div.onclick = () => selectDetailPackage(pkg);
+          div.innerHTML = `
+            <div>
+              <div class="flex justify-between items-baseline mb-1">
+                <span class="text-sm font-bold text-[#023047]">${pkg.name}</span>
+                <span class="text-base font-extrabold text-[#023047]">$${pkg.price}</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">${pkg.desc}</p>
+            </div>
+            <div class="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i> ${pkg.duration}
+            </div>
+          `;
+          pkgContainer.appendChild(div);
+        });
+
+        // Inclusions & Exclusions
+        const incList = document.getElementById('modal-included-list');
+        incList.innerHTML = s.included.map(i => `<li class="flex items-start gap-1"><span class="text-emerald-500 font-bold">✓</span><span>${i}</span></li>`).join('');
+        const excList = document.getElementById('modal-excluded-list');
+        excList.innerHTML = s.excluded.map(e => `<li class="flex items-start gap-1"><span class="text-rose-400 font-bold">✕</span><span>${e}</span></li>`).join('');
+
+        document.getElementById('service-detail-modal').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function selectDetailPackage(pkg) {
+        activeDetailPackage = pkg;
+        document.getElementById('modal-active-price').innerText = `$${pkg.price}`;
+        activeDetailService.packages.forEach(p => {
+          const el = document.getElementById(`pkg-card-${p.id}`);
+          if (el) {
+            if (p.id === pkg.id) el.className = 'p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between border-[#219EBC] bg-[#8ECAE6]/10 ring-1 ring-[#219EBC]';
+            else el.className = 'p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between border-slate-200 bg-white';
+          }
+        });
+      }
+
+      function closeServiceDetail() {
+        document.getElementById('service-detail-modal').classList.add('hidden');
+      }
+
+      function startBookingFromModal() {
+        closeServiceDetail();
+        startBooking(activeDetailService, activeDetailPackage);
+      }
+
+      function startBookingDirect(id) {
+        const s = SERVICES.find(item => item.id === id);
+        if (s) startBooking(s, s.packages[0]);
+      }
+
+      // 8. INTERACTIVE MULTI-STEP BOOKING FLOW
+      function startBooking(service, pkg) {
+        bookingState = {
+          step: 1,
+          service,
+          package: pkg,
+          dateType: 'tomorrow',
+          customDate: '2026-10-12',
+          timeSlot: '10:30 AM - 12:00 PM',
+          name: 'Alex Morgan',
+          phone: '+1 (555) 389-4920',
+          address: '1244 Parkwood Blvd, Apt 5B',
+          promoCode: '',
+          discount: 0,
+          paymentMethod: 'pay_after_service',
+          confirmedId: null
+        };
+        renderBookingStep();
+        document.getElementById('booking-modal').classList.remove('hidden');
+      }
+
+      function closeBookingModal() {
+        document.getElementById('booking-modal').classList.add('hidden');
+      }
+
+      function renderBookingStep() {
+        const container = document.getElementById('booking-step-content');
+        const title = document.getElementById('booking-modal-title');
+        const stepInfo = document.getElementById('booking-modal-step-info');
+        const backBtn = document.getElementById('booking-back-btn');
+        const nextBtn = document.getElementById('booking-next-btn');
+        const progressFill = document.getElementById('booking-progress-fill');
+        const footer = document.getElementById('booking-modal-footer');
+
+        title.innerText = `Book ${bookingState.service.title}`;
+        progressFill.style.width = `${(bookingState.step / 3) * 100}%`;
+
+        if (bookingState.step === 1) {
+          stepInfo.innerText = 'Step 1 of 3: Select Date & Time';
+          backBtn.classList.add('hidden');
+          nextBtn.innerHTML = `<span>Continue</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>`;
+          footer.classList.remove('hidden');
+
+          container.innerHTML = `
+            <div class="space-y-6">
+              <div class="p-3.5 rounded-2xl bg-[#8ECAE6]/15 border border-[#8ECAE6]/40 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] font-bold uppercase text-[#219EBC]">Package</div>
+                  <div class="text-sm font-extrabold text-[#023047]">${bookingState.package.name}</div>
+                  <div class="text-xs text-slate-500">${bookingState.package.duration}</div>
+                </div>
+                <div class="text-base font-black text-[#023047]">$${bookingState.package.price}</div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-2">Select Service Date</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="setBookingDate('today')" class="py-2.5 px-3 rounded-xl border text-xs font-bold ${bookingState.dateType === 'today' ? 'border-[#219EBC] bg-[#219EBC] text-white' : 'border-slate-200 bg-white text-slate-700'}">Today</button>
+                  <button type="button" onclick="setBookingDate('tomorrow')" class="py-2.5 px-3 rounded-xl border text-xs font-bold ${bookingState.dateType === 'tomorrow' ? 'border-[#219EBC] bg-[#219EBC] text-white' : 'border-slate-200 bg-white text-slate-700'}">Tomorrow</button>
+                  <button type="button" onclick="setBookingDate('custom')" class="py-2.5 px-3 rounded-xl border text-xs font-bold ${bookingState.dateType === 'custom' ? 'border-[#219EBC] bg-[#219EBC] text-white' : 'border-slate-200 bg-white text-slate-700'}">Custom Date</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-2">Select Arrival Slot</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  ${['08:30 AM - 10:00 AM', '10:30 AM - 12:00 PM', '01:30 PM - 03:00 PM', '03:30 PM - 05:00 PM', '05:30 PM - 07:00 PM'].map(slot => `
+                    <button type="button" onclick="setBookingSlot('${slot}')" class="p-3 rounded-xl border text-xs font-semibold flex items-center justify-between ${bookingState.timeSlot === slot ? 'border-[#219EBC] bg-[#8ECAE6]/15 text-[#023047] ring-1 ring-[#219EBC]' : 'border-slate-200 bg-white text-slate-700'}">
+                      <span>${slot}</span>
+                      ${bookingState.timeSlot === slot ? '<i data-lucide="check" class="w-3.5 h-3.5 text-[#219EBC]"></i>' : ''}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (bookingState.step === 2) {
+          stepInfo.innerText = 'Step 2 of 3: Service Address & Contact';
+          backBtn.classList.remove('hidden');
+          nextBtn.innerHTML = `<span>Review & Pay</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>`;
+          footer.classList.remove('hidden');
+
+          container.innerHTML = `
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1">Your Full Name</label>
+                <input type="text" id="b-cust-name" value="${bookingState.name}" class="w-full text-xs font-medium p-2.5 border border-slate-200 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1">Phone Number</label>
+                <input type="tel" id="b-cust-phone" value="${bookingState.phone}" class="w-full text-xs font-medium p-2.5 border border-slate-200 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1">Street Address in ${currentCity}</label>
+                <input type="text" id="b-cust-addr" value="${bookingState.address}" class="w-full text-xs font-medium p-2.5 border border-slate-200 rounded-xl" />
+              </div>
+            </div>
+          `;
+        } else if (bookingState.step === 3) {
+          stepInfo.innerText = 'Step 3 of 3: Summary & Payment';
+          backBtn.classList.remove('hidden');
+          const total = Math.max(0, bookingState.package.price - bookingState.discount + 3.50);
+          nextBtn.innerHTML = `<span>Confirm Booking ($${total.toFixed(2)})</span> <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FFB703]"></i>`;
+          footer.classList.remove('hidden');
+
+          container.innerHTML = `
+            <div class="space-y-4">
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                <div class="flex justify-between font-bold text-[#023047]">
+                  <span>${bookingState.service.title} (${bookingState.package.name})</span>
+                  <span>$${bookingState.package.price}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                  <span>Safety & Warranty Fee</span>
+                  <span>$3.50</span>
+                </div>
+                ${bookingState.discount > 0 ? `
+                  <div class="flex justify-between text-emerald-600 font-bold">
+                    <span>Coupon Discount</span>
+                    <span>-$${bookingState.discount.toFixed(2)}</span>
+                  </div>
+                ` : ''}
+                <div class="border-t pt-2 flex justify-between font-black text-sm text-[#023047]">
+                  <span>Total Due</span>
+                  <span class="text-[#FB8500]">$${total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <!-- Coupon Code Input -->
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-1">Promo Code (Try SAVE20 or HSFIRST10)</label>
+                <div class="flex gap-2">
+                  <input type="text" id="promo-input" placeholder="SAVE20" class="flex-1 text-xs uppercase p-2 border border-slate-200 rounded-xl" />
+                  <button type="button" onclick="applyPromoCode()" class="px-4 py-2 bg-[#8ECAE6]/30 text-xs font-bold rounded-xl cursor-pointer">Apply</button>
+                </div>
+                <div id="promo-msg" class="text-[11px] mt-1 font-bold"></div>
+              </div>
+
+              <!-- Payment Method -->
+              <div>
+                <label class="block text-xs font-bold text-[#023047] uppercase tracking-wider mb-2">Payment Method</label>
+                <label class="p-3 rounded-xl border flex items-center justify-between cursor-pointer border-[#219EBC] bg-[#8ECAE6]/10">
+                  <span class="text-xs font-bold text-[#023047]">Pay After Service (Cash, Card or Digital Link)</span>
+                  <span class="text-[10px] font-black uppercase text-[#219EBC] bg-[#8ECAE6]/25 px-2 py-0.5 rounded">Zero Risk</span>
+                </label>
+              </div>
+            </div>
+          `;
+        } else if (bookingState.step === 4) {
+          stepInfo.innerText = 'Appointment Scheduled';
+          footer.classList.add('hidden');
+
+          const finalItem = bookings.find(b => b.id === bookingState.confirmedId) || bookings[0];
+          container.innerHTML = `
+            <div class="text-center py-4 space-y-4">
+              <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-8 h-8"></i>
+              </div>
+              <h3 class="text-2xl font-black text-[#023047]">Booking #${finalItem.id}</h3>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">A certified professional has been scheduled for your address. SMS confirmation dispatched.</p>
+              
+              <div class="p-4 rounded-2xl bg-slate-50 border text-left text-xs space-y-2 max-w-md mx-auto">
+                <div class="flex justify-between"><span class="text-slate-500">Service:</span><span class="font-bold">${finalItem.serviceTitle}</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Scheduled:</span><span class="font-bold">${finalItem.date} · ${finalItem.timeSlot}</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Total:</span><span class="font-bold text-[#FB8500]">$${finalItem.totalPrice.toFixed(2)}</span></div>
+              </div>
+
+              <div class="flex gap-3 justify-center pt-2">
+                <button onclick="downloadCalendarICS('${finalItem.id}')" class="px-4 py-2 text-xs font-bold bg-[#8ECAE6]/25 text-[#023047] rounded-xl flex items-center gap-1 cursor-pointer">
+                  <i data-lucide="calendar" class="w-4 h-4 text-[#219EBC]"></i> Add to Calendar (.ics)
+                </button>
+                <button onclick="closeBookingModal(); navigateTo('bookings');" class="px-5 py-2 text-xs font-bold bg-[#023047] text-white rounded-xl cursor-pointer">
+                  View in My Bookings
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function setBookingDate(type) {
+        bookingState.dateType = type;
+        renderBookingStep();
+      }
+
+      function setBookingSlot(slot) {
+        bookingState.timeSlot = slot;
+        renderBookingStep();
+      }
+
+      function prevBookingStep() {
+        if (bookingState.step > 1) {
+          bookingState.step--;
+          renderBookingStep();
+        }
+      }
+
+      function nextBookingStep() {
+        if (bookingState.step === 1) {
+          bookingState.step = 2;
+          renderBookingStep();
+        } else if (bookingState.step === 2) {
+          bookingState.name = document.getElementById('b-cust-name').value;
+          bookingState.phone = document.getElementById('b-cust-phone').value;
+          bookingState.address = document.getElementById('b-cust-addr').value;
+          bookingState.step = 3;
+          renderBookingStep();
+        } else if (bookingState.step === 3) {
+          // Confirm booking
+          const newId = `HS-${Math.floor(10000 + Math.random() * 90000)}`;
+          const total = Math.max(0, bookingState.package.price - bookingState.discount + 3.50);
+          const readableDate = bookingState.dateType === 'today' ? 'Today, Oct 10' : 'Tomorrow, Oct 11';
+
+          const newBooking = {
+            id: newId,
+            serviceTitle: bookingState.service.title,
+            packageName: bookingState.package.name,
+            date: readableDate,
+            timeSlot: bookingState.timeSlot,
+            price: bookingState.package.price,
+            totalPrice: total,
+            status: 'confirmed',
+            address: `${bookingState.address}, ${currentCity}`,
+            customerName: bookingState.name,
+            phone: bookingState.phone
+          };
+
+          bookings.unshift(newBooking);
+          localStorage.setItem('hs_bookings_data', JSON.stringify(bookings));
+          updateBookingBadges();
+          bookingState.confirmedId = newId;
+          bookingState.step = 4;
+          showToast(`Booking #${newId} confirmed!`);
+          renderBookingStep();
+        }
+      }
+
+      function applyPromoCode() {
+        const code = document.getElementById('promo-input').value.trim().toUpperCase();
+        const msg = document.getElementById('promo-msg');
+        if (code === 'SAVE20') {
+          bookingState.discount = bookingState.package.price * 0.2;
+          msg.className = 'text-[11px] mt-1 font-bold text-emerald-600';
+          msg.innerText = `✓ 20% discount applied! Saved $${bookingState.discount.toFixed(2)}`;
+          renderBookingStep();
+        } else if (code === 'HSFIRST10') {
+          bookingState.discount = 10;
+          msg.className = 'text-[11px] mt-1 font-bold text-emerald-600';
+          msg.innerText = `✓ $10 discount applied!`;
+          renderBookingStep();
+        } else {
+          msg.className = 'text-[11px] mt-1 font-bold text-rose-500';
+          msg.innerText = 'Invalid coupon. Try SAVE20 or HSFIRST10';
+        }
+      }
+
+      function downloadCalendarICS(id) {
+        const item = bookings.find(b => b.id === id) || bookings[0];
+        const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${item.serviceTitle} (${item.packageName})\nDESCRIPTION:HS.com Booking ID: ${item.id}\nLOCATION:${item.address}\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
+        const blob = new Blob([ics], { type: 'text/calendar' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${item.id}-booking.ics`;
+        a.click();
+      }
+
+      // 9. BOOKINGS DASHBOARD CONTROLLER
+      function setBookingsFilter(f) {
+        bookingsFilter = f;
+        ['all', 'active', 'completed'].forEach(tab => {
+          const btn = document.getElementById(`b-filter-${tab}`);
+          if (btn) {
+            if (tab === f) btn.className = 'px-4 py-2 text-xs font-bold rounded-xl bg-[#023047] text-white cursor-pointer';
+            else btn.className = 'px-4 py-2 text-xs font-bold rounded-xl bg-white border text-slate-600 cursor-pointer';
+          }
+        });
+        renderBookingsDashboard();
+      }
+
+      function renderBookingsDashboard() {
+        const container = document.getElementById('bookings-dashboard-grid');
+        container.innerHTML = '';
+
+        let list = [...bookings];
+        if (bookingsFilter === 'active') list = list.filter(b => b.status === 'confirmed');
+        else if (bookingsFilter === 'completed') list = list.filter(b => b.status === 'completed');
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full text-center py-12 bg-white rounded-2xl border p-8">
+              <i data-lucide="calendar" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+              <h4 class="text-sm font-bold text-[#023047]">No bookings found</h4>
+              <p class="text-xs text-slate-500 mt-1">Schedule your next service anytime.</p>
+              <button onclick="navigateTo('services')" class="mt-4 px-4 py-2 bg-[#023047] text-white text-xs font-bold rounded-xl cursor-pointer">Browse Services</button>
+            </div>
+          `;
+        } else {
+          list.forEach(b => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4';
+            card.innerHTML = `
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-xs font-bold text-slate-500">#${b.id}</span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${b.status}</span>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-[#023047]">${b.serviceTitle}</h3>
+                  <p class="text-xs text-slate-500 font-medium">${b.packageName}</p>
+                </div>
+                <div class="space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-[#219EBC]"></i><span>${b.date} · ${b.timeSlot}</span></div>
+                  <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#219EBC]"></i><span class="truncate">${b.address}</span></div>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-base font-black text-[#023047]">$${b.totalPrice.toFixed(2)}</span>
+                <div class="flex gap-2">
+                  <button onclick="openReceipt('${b.id}')" class="px-3 py-1.5 text-xs font-bold text-[#023047] bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer">Receipt</button>
+                  ${b.status === 'confirmed' ? `<button onclick="cancelBooking('${b.id}')" class="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg cursor-pointer">Cancel</button>` : ''}
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        }
+
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function cancelBooking(id) {
+        if (confirm(`Cancel booking #${id}?`)) {
+          bookings = bookings.map(b => b.id === id ? { ...b, status: 'cancelled' } : b);
+          localStorage.setItem('hs_bookings_data', JSON.stringify(bookings));
+          updateBookingBadges();
+          renderBookingsDashboard();
+          showToast(`Booking #${id} cancelled.`);
+        }
+      }
+
+      function openReceipt(id) {
+        const item = bookings.find(b => b.id === id) || bookings[0];
+        const c = document.getElementById('receipt-modal-content');
+        c.innerHTML = `
+          <div class="flex justify-between"><span class="text-slate-500">Invoice:</span><span class="font-mono font-bold">INV-${item.id}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Service:</span><span class="font-bold">${item.serviceTitle}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Package:</span><span>${item.packageName}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Scheduled:</span><span>${item.date} · ${item.timeSlot}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Address:</span><span>${item.address}</span></div>
+          <div class="border-t pt-2 space-y-1">
+            <div class="flex justify-between"><span>Base Rate:</span><span>$${item.price.toFixed(2)}</span></div>
+            <div class="flex justify-between font-black text-sm text-[#023047] border-t pt-1"><span>Total:</span><span class="text-[#FB8500]">$${item.totalPrice.toFixed(2)}</span></div>
+          </div>
+        `;
+        document.getElementById('receipt-modal').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function closeReceiptModal() {
+        document.getElementById('receipt-modal').classList.add('hidden');
+      }
+
+      // 10. EMERGENCY DISPATCH
+      function openEmergencyModal() {
+        document.getElementById('emergency-modal').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function closeEmergencyModal() {
+        document.getElementById('emergency-modal').classList.add('hidden');
+      }
+
+      function handleEmergencySubmit(e) {
+        e.preventDefault();
+        const phone = document.getElementById('emerg-phone').value;
+        const addr = document.getElementById('emerg-addr').value;
+        const newId = `EMERG-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const newBooking = {
+          id: newId,
+          serviceTitle: 'Emergency 45-Min Callout',
+          packageName: 'Rapid Dispatch Unit',
+          date: 'Today (Immediate)',
+          timeSlot: 'Within 45 Minutes',
+          price: 79,
+          totalPrice: 79,
+          status: 'confirmed',
+          address: `${addr}, ${currentCity}`,
+          customerName: 'Emergency Caller',
+          phone
+        };
+
+        bookings.unshift(newBooking);
+        localStorage.setItem('hs_bookings_data', JSON.stringify(bookings));
+        updateBookingBadges();
+        closeEmergencyModal();
+        showToast(`Rapid Response Unit dispatched for #${newId}!`);
+        navigateTo('bookings');
+      }
+
+      // Start application on DOM ready
+      document.addEventListener('DOMContentLoaded', initApp);
+      // Fallback invocation in case already loaded
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initApp();
+      }
+    </script>
+  </body>
+</html>
